@@ -18,41 +18,49 @@ function removeLoadingSpinner() {
 }
 
 // Show new quote
-function newQuote() {
+async function newQuote() {
     showLoadingSpinner();
     // Pick a random quote from apiQuotes array
     // For Kanye, change quote to equal awaiting the api and make newQuote async
-    const quote = apiQuotes[Math.floor(Math.random() * apiQuotes.length)];
+    try {const untrimmedQuote = await(await fetch('https://api.kanye.rest/')).json();
     // Check if author field is blank and replace it with 'Unknown'
-    if (!quote.author) {
-        authorText.textContent = 'Unknown';
-    } else {
-        authorText.textContent = quote.author;
-    }
+    // if (!quote.author) {
+    //     authorText.textContent = 'Unknown';
+    // } else {
+    //     authorText.textContent = quote.author;
+    // }
     // Check quote length to determine styling
-    if (quote.text.length > 120) {
-        quoteText.classList.add('long-quote');
-    } else {
-        quoteText.classList.remove('long-quote');
+
+        const quote = untrimmedQuote.quote.trim();
+        console.log(quote);
+        
+        if (quote.length > 120) {
+            quoteText.classList.add('long-quote');
+        } else {
+            quoteText.classList.remove('long-quote');
+        }
+        
+        // Set quote, hide loader
+        quoteText.textContent = quote
+        removeLoadingSpinner();
+    } catch (e) {
+        newQuote();
     }
-    // Set quote, hide loader
-    quoteText.textContent = quote.text;
-    removeLoadingSpinner();
 }
 
 // Get quotes from API
-async function getQuotes() {
-    showLoadingSpinner();
-    const apiUrl = 'https://type.fit/api/quotes';
-    try {
-        const response = await fetch(apiUrl);
-        apiQuotes = await response.json();
-        newQuote();
-    } catch (e) {
-        // Catch error here
-        console.log(e)
-    }
-}
+// async function getQuotes() {
+//     showLoadingSpinner();
+//     const apiUrl = 'https://type.fit/api/quotes';
+//     try {
+//         const response = await fetch(apiUrl);
+//         apiQuotes = await response.json();
+//         newQuote();
+//     } catch (e) {
+//         // Catch error here
+//         console.log(e)
+//     }
+// }
 
 // Tweet quote
 function tweetQuote() {
@@ -65,4 +73,5 @@ newQuoteBtn.addEventListener('click', newQuote);
 twitterBtn.addEventListener('click', tweetQuote);
 
 // On load
-getQuotes()
+// getQuotes()
+newQuote();
